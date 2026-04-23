@@ -3,7 +3,7 @@
     "displayName": "FTL Formatter",
     "description": "Config-driven FreeMarker formatter and syntax highlighter. Edit ftl.config.json at the repo root to change indentation and colors.",
     "version": "1.0.0",
-    "publisher": "local",
+    "publisher": "Toikr",
     "license": "MIT",
     "repository": { "type": "git", "url": "https://github.com/Toivonen1/freemarker-vscode-formatter" },
     "engines": {
