@@ -135,7 +135,7 @@ function findTagEnd(line, start) {
  *   "</#if><tag>"          → ["</#if>", "<tag>"]
  *   "</tag><#if ...>"      → ["</tag>", "<#if ...>"]
  *   "<#else>NA"            → ["<#else>", "NA"]
- *   "<tag>content</tag>"   → ["<tag>", "content", "</tag>"]
+ *   "<tag>content</tag>"   → ["<tag>content</tag>"] (kept intact — splitting would add whitespace to XML values)
  *   "<tag>content"         → ["<tag>", "content"]
  *   "content</tag>"        → ["content", "</tag>"]
  *
@@ -147,6 +147,9 @@ function findTagEnd(line, start) {
  */
 function splitInlineContent(line) {
     if (!line.includes('<')) return [line];
+
+    // Don't split <tag>content</tag> — keeping inline preserves whitespace in XML values
+    if (/^<([a-zA-Z][a-zA-Z0-9:.-]*)(?:\s[^>]*)?>[^<]*<\/\1\s*>$/.test(line)) return [line];
 
     const tokens = [];
     let i = 0;
