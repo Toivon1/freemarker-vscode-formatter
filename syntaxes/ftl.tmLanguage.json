@@ -1,0 +1,126 @@
+{
+    "name": "FreeMarker Template Language",
+    "scopeName": "text.html.ftl",
+    "fileTypes": ["ftl"],
+    "patterns": [
+        { "include": "#ftl-comment" },
+        { "include": "#xml-comment" },
+        { "include": "#ftl-directive-open" },
+        { "include": "#ftl-interpolation" },
+        { "include": "#xml-tag" }
+    ],
+    "repository": {
+        "ftl-comment": {
+            "begin": "<#--",
+            "beginCaptures": { "0": { "name": "punctuation.definition.comment.ftl" } },
+            "end": "-->",
+            "endCaptures": { "0": { "name": "punctuation.definition.comment.ftl" } },
+            "name": "comment.block.ftl"
+        },
+        "xml-comment": {
+            "begin": "<!--",
+            "beginCaptures": { "0": { "name": "punctuation.definition.comment.xml" } },
+            "end": "-->",
+            "endCaptures": { "0": { "name": "punctuation.definition.comment.xml" } },
+            "name": "comment.block.xml"
+        },
+        "ftl-directive-open": {
+            "begin": "(</?#)(if|else|elseif|list|items|sep|macro|function|switch|case|default|break|return|stop|compress|escape|noescape|attempt|recover|assign|local|global|setting|include|import|nested|flush|ftl|outputformat|autoesc|noautoesc|nt|rt|lt|t)\\b",
+            "beginCaptures": {
+                "1": { "name": "punctuation.definition.tag.ftl" },
+                "2": { "name": "keyword.control.ftl" }
+            },
+            "end": "/?>",
+            "endCaptures": { "0": { "name": "punctuation.definition.tag.ftl" } },
+            "name": "meta.directive.ftl",
+            "patterns": [
+                { "include": "#ftl-interpolation" },
+                { "include": "#ftl-string" },
+                { "include": "#ftl-number" },
+                { "include": "#ftl-operator" }
+            ]
+        },
+        "ftl-operator": {
+            "match": "[=+\\-*/<>!?]=?|\\+\\+|--|&&|\\|\\|",
+            "name": "keyword.operator.ftl"
+        },
+        "ftl-interpolation": {
+            "begin": "\\$\\{",
+            "beginCaptures": { "0": { "name": "punctuation.definition.interpolation.ftl" } },
+            "end": "\\}",
+            "endCaptures": { "0": { "name": "punctuation.definition.interpolation.ftl" } },
+            "name": "meta.interpolation.ftl",
+            "contentName": "variable.other.interpolation.ftl"
+        },
+        "ftl-string": {
+            "patterns": [
+                {
+                    "begin": "\"",
+                    "end": "\"",
+                    "name": "string.quoted.double.ftl"
+                },
+                {
+                    "begin": "'",
+                    "end": "'",
+                    "name": "string.quoted.single.ftl"
+                }
+            ]
+        },
+        "ftl-number": {
+            "match": "\\b\\d+(\\.\\d+)?\\b",
+            "name": "constant.numeric.ftl"
+        },
+        "xml-attribute": {
+            "patterns": [
+                {
+                    "begin": "([a-zA-Z_:][a-zA-Z0-9:._-]*)\\s*=\\s*\"",
+                    "beginCaptures": { "1": { "name": "entity.other.attribute-name.ftl" } },
+                    "end": "\"",
+                    "name": "meta.attribute.ftl",
+                    "contentName": "string.quoted.double.ftl",
+                    "patterns": [{ "include": "#ftl-interpolation" }]
+                },
+                {
+                    "begin": "([a-zA-Z_:][a-zA-Z0-9:._-]*)\\s*=\\s*'",
+                    "beginCaptures": { "1": { "name": "entity.other.attribute-name.ftl" } },
+                    "end": "'",
+                    "name": "meta.attribute.ftl",
+                    "contentName": "string.quoted.single.ftl",
+                    "patterns": [{ "include": "#ftl-interpolation" }]
+                },
+                {
+                    "match": "[a-zA-Z_:][a-zA-Z0-9:._-]*",
+                    "name": "entity.other.attribute-name.ftl"
+                }
+            ]
+        },
+        "xml-tag": {
+            "patterns": [
+                {
+                    "begin": "(<)([a-zA-Z][a-zA-Z0-9:._-]*)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "punctuation.definition.tag.ftl" },
+                        "2": { "name": "entity.name.tag.ftl" }
+                    },
+                    "end": "/?>",
+                    "endCaptures": { "0": { "name": "punctuation.definition.tag.ftl" } },
+                    "name": "meta.tag.ftl",
+                    "patterns": [
+                        { "include": "#ftl-interpolation" },
+                        { "include": "#xml-attribute" }
+                    ]
+                },
+                {
+                    "begin": "(</)([a-zA-Z][a-zA-Z0-9:._-]*)\\b",
+                    "beginCaptures": {
+                        "1": { "name": "punctuation.definition.tag.ftl" },
+                        "2": { "name": "entity.name.tag.ftl" }
+                    },
+                    "end": ">",
+                    "endCaptures": { "0": { "name": "punctuation.definition.tag.ftl" } },
+                    "name": "meta.tag.closing.ftl"
+                }
+            ]
+        }
+    }
+}
