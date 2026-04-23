@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "publisher": "Toikr",
     "license": "MIT",
-    "repository": { "type": "git", "url": "https://github.com/Toivonen1/freemarker-vscode-formatter" },
+    "repository": { "type": "git", "url": "https://github.com/Toivon1/freemarker-vscode-formatter" },
     "engines": {
         "vscode": "^1.74.0"
     },
