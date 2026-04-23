@@ -74,9 +74,9 @@ function applyColors(config) {
 // ─── Formatter ───────────────────────────────────────────────────────────────
 
 const FTL_BLOCK_OPEN =
-    /^<#(if|list|items|sep|macro|function|switch|compress|escape|noescape|attempt|recover|nested)\b/;
+    /^<#(if|list|items|sep|macro|function|switch|compress|escape|noescape|attempt|recover)\b/;
 const FTL_BLOCK_CLOSE =
-    /^<\/(#if|#list|#items|#sep|#macro|#function|#switch|#compress|#escape|#noescape|#attempt|#recover|#nested)>/;
+    /^<\/(#if|#list|#items|#sep|#macro|#function|#switch|#compress|#escape|#noescape|#attempt|#recover)>/;
 const FTL_ELSE_LIKE = /^<#(else|elseif)\b/;
 const RE_XML_CLOSE = /^<\/[a-zA-Z]/;
 const RE_TAG_LINE = /^<[/#!?a-zA-Z]/;
@@ -223,8 +223,12 @@ function formatFtl(text, config) {
                 const closeTag = expanded[j + 2];
                 const escapedTag = openMatch[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const isMatchingClose = new RegExp('^<\\/' + escapedTag + '\\s*>$').test(closeTag);
-                const isContentNotTag = !content.startsWith('<');
-                if (isMatchingClose && isContentNotTag) {
+                // Allow: plain text/interpolation, OR complete inline elements like <b>text</b> or <br />
+                // Disallow: FTL block directives (<#if>, <#list>) or bare closing tags
+                const isContentInline =
+                    !content.startsWith('<') ||
+                    (content.endsWith('>') && !content.startsWith('<#') && !content.startsWith('</'));
+                if (isMatchingClose && isContentInline) {
                     collapsed.push(line + content + closeTag);
                     j += 3;
                     continue;
@@ -238,12 +242,22 @@ function formatFtl(text, config) {
     const output = [];
     let indentLevel = 0;
     let inMultiLineTag = false;
+    let inMultiLineFtlDirective = false;
 
     for (let i = 0; i < collapsed.length; i++) {
         const line = collapsed[i]; // already trimmed by pre-processing
 
         if (!line) {
             output.push('');
+            continue;
+        }
+
+        if (inMultiLineFtlDirective) {
+            output.push(' '.repeat((indentLevel + 1) * INDENT_SIZE) + line);
+            if (line.includes('>')) {
+                inMultiLineFtlDirective = false;
+                indentLevel++;
+            }
             continue;
         }
 
@@ -272,7 +286,11 @@ function formatFtl(text, config) {
         if (isClosingXmlTag || isClosingFtlDirective) {
             // no change after closing tag
         } else if (isElseLike || FTL_BLOCK_OPEN.test(line)) {
-            indentLevel++;
+            if (line.includes('>')) {
+                indentLevel++;
+            } else {
+                inMultiLineFtlDirective = true;
+            }
         } else if (RE_XML_OPEN.test(line) && !/^<\?/.test(line) && !/^<!--/.test(line)) {
             if (line.trimEnd().endsWith('/>')) {
                 // self-closing — no change
