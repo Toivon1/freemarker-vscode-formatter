@@ -2,7 +2,7 @@
     "name": "ftl-formatter",
     "displayName": "FTL Formatter",
     "description": "Config-driven FreeMarker formatter and syntax highlighter. Edit ftl.config.json at the repo root to change indentation and colors.",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "publisher": "Toikr",
     "license": "MIT",
     "repository": {
