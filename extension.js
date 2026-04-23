@@ -67,7 +67,7 @@ function applyColors(config) {
     wsConfig.update(
         'editor.tokenColorCustomizations',
         { ...current, textMateRules: [...preserved, ...newRules] },
-        vscode.ConfigurationTarget.Workspace
+        vscode.ConfigurationTarget.Global
     );
 }
 
