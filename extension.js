@@ -17,6 +17,18 @@ const SCOPE_MAP = {
     operator: 'keyword.operator.ftl',
 };
 
+/** @type {Record<string, string>} Default colors applied when no ftl.config.json is present. */
+const DEFAULT_COLORS = {
+    directive: '#C586C0',
+    interpolation: '#4EC9B0',
+    xmlTag: '#4FC1FF',
+    xmlAttribute: '#9CDCFE',
+    xmlAttributeValue: '#CE9178',
+    comment: '#6A9955',
+    number: '#B5CEA8',
+    operator: '#FFFFFF',
+};
+
 /** @returns {{ formatter?: { indentWidth?: number }, colors?: Record<string, string> } | null} */
 function loadConfig() {
     const folders = vscode.workspace.workspaceFolders;
@@ -32,14 +44,14 @@ function loadConfig() {
 }
 
 /**
- * Reads colors from ftl.config.json and writes them into the workspace
- * editor.tokenColorCustomizations setting so they are applied immediately.
+ * Reads colors from ftl.config.json (falling back to defaults) and writes them
+ * into the workspace editor.tokenColorCustomizations setting.
  * @param {{ formatter?: { indentWidth?: number }, colors?: Record<string, string> } | null} config
  */
 function applyColors(config) {
-    if (!config?.colors) return;
+    const colors = config?.colors ?? DEFAULT_COLORS;
 
-    const newRules = Object.entries(config.colors)
+    const newRules = Object.entries(colors)
         .filter(([key]) => SCOPE_MAP[key])
         .map(([key, color]) => ({ scope: SCOPE_MAP[key], settings: { foreground: color } }));
 
