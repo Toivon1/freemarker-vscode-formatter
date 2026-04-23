@@ -211,12 +211,36 @@ function formatFtl(text, config) {
         }
     }
 
+    // Collapse multi-line <tag>\ncontent\n</tag> into <tag>content</tag>
+    const collapsed = [];
+    {
+        let j = 0;
+        while (j < expanded.length) {
+            const line = expanded[j];
+            const openMatch = line.match(/^<([a-zA-Z][a-zA-Z0-9:.-]*)(?:\s[^>]*)?>$/);
+            if (openMatch && j + 2 < expanded.length) {
+                const content = expanded[j + 1];
+                const closeTag = expanded[j + 2];
+                const escapedTag = openMatch[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const isMatchingClose = new RegExp('^<\\/' + escapedTag + '\\s*>$').test(closeTag);
+                const isContentNotTag = !content.startsWith('<');
+                if (isMatchingClose && isContentNotTag) {
+                    collapsed.push(line + content + closeTag);
+                    j += 3;
+                    continue;
+                }
+            }
+            collapsed.push(line);
+            j++;
+        }
+    }
+
     const output = [];
     let indentLevel = 0;
     let inMultiLineTag = false;
 
-    for (let i = 0; i < expanded.length; i++) {
-        const line = expanded[i]; // already trimmed by pre-processing
+    for (let i = 0; i < collapsed.length; i++) {
+        const line = collapsed[i]; // already trimmed by pre-processing
 
         if (!line) {
             output.push('');
@@ -227,7 +251,7 @@ function formatFtl(text, config) {
             output.push(' '.repeat((indentLevel + 1) * INDENT_SIZE) + line);
             if (line.includes('>')) {
                 inMultiLineTag = false;
-                const nextTag = nextNonEmpty(expanded, i);
+                const nextTag = nextNonEmpty(collapsed, i);
                 if (!line.endsWith('/>') && nextTag && isTagLine(nextTag)) {
                     indentLevel++;
                 }
