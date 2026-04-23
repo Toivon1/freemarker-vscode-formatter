@@ -223,11 +223,8 @@ function formatFtl(text, config) {
                 const closeTag = expanded[j + 2];
                 const escapedTag = openMatch[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const isMatchingClose = new RegExp('^<\\/' + escapedTag + '\\s*>$').test(closeTag);
-                // Allow: plain text/interpolation, OR complete inline elements like <b>text</b> or <br />
-                // Disallow: FTL block directives (<#if>, <#list>) or bare closing tags
-                const isContentInline =
-                    !content.startsWith('<') ||
-                    (content.endsWith('>') && !content.startsWith('<#') && !content.startsWith('</'));
+                // Only collapse when content is plain text or interpolation — never XML/FTL elements
+                const isContentInline = !content.startsWith('<');
                 if (isMatchingClose && isContentInline) {
                     collapsed.push(line + content + closeTag);
                     j += 3;
